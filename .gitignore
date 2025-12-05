@@ -68,3 +68,6 @@ criterion/
 
 # Documentation build
 /doc/
+
+# files
+*.txt
