@@ -11,23 +11,21 @@ struct Range {
 }
 
 // part 1 - 828
+// part 2 - 352681648086146
 fn main() {
     let contents = fs::read_to_string("input.txt").expect("Something went wrong reading the file");
 
     let parts: Vec<&str> = contents.split("\r\n\r\n").collect();
 
     let ranges : Vec<Range> = parseRanges( parts[0] );
+    let sortedRanges = sortRanges( &ranges );
+    let mergedRanges = mergeRanges( &sortedRanges );
 
     let mut countFreshIds = 0;
-    for id in parts[1].lines() {
-        let idNum: i64 = id.parse().unwrap();
-        for range in &ranges { // I don't understand why I need to borrow here
-            if idNum >= range.start && idNum <= range.end {
-                countFreshIds += 1;
-                break;
-            }
-        }
+    for range in &mergedRanges {
+        countFreshIds += range.end - range.start + 1;
     }
+
     println!("countFreshIds: {}", countFreshIds);
 }
 
@@ -45,4 +43,32 @@ fn parseRanges( rangeParts: &str ) -> Vec<Range> {
     }
 
     return ranges;
+}
+
+fn sortRanges( ranges: &Vec<Range> ) -> Vec<Range> {
+    let mut sortedRanges = ranges.clone();
+    sortedRanges.sort_by_key(|r| r.start );
+    return sortedRanges;
+}
+
+fn mergeRanges( sortedRanges: &Vec<Range> ) -> Vec<Range> {
+    let mut mergedRanges: Vec<Range> = Vec::new();
+
+    let mut lastRange = sortedRanges[0];
+    let mut lastIndex = 0;
+    for range in sortedRanges {
+        if mergedRanges.is_empty() {
+            mergedRanges.push(*range);
+        } else {
+            if range.start <= lastRange.end + 1 {
+                mergedRanges[lastIndex].end = lastRange.end.max(range.end);
+            } else {
+                mergedRanges.push(*range);
+            }
+        }
+        lastIndex = mergedRanges.len() - 1;
+        lastRange = mergedRanges[lastIndex];
+    }
+
+    return mergedRanges;
 }
