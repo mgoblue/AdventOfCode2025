@@ -10,11 +10,22 @@ struct Data {
 }
 
 // part 1 - 1587
+// part 2 -8946
 fn main() {
     let mut grid: Vec<Vec<Data>> = populate_grid();
     //print_grid(&grid);
-    determine_accessibility(&mut grid);
-    count_accessible_paper_rolls(&grid);
+    let mut sum = 0;
+    loop {
+        determine_accessibility(&mut grid);
+        let accessibleCount = count_accessible_paper_rolls(&grid);
+        println!("Number of accessible paper rolls: {}", accessibleCount);
+        if accessibleCount == 0 {
+            break;
+        }
+        remove_accessible_paper_rolls(&mut grid);
+        sum += accessibleCount;
+    }
+    println!("Sum of accessible paper rolls: {}", sum);
 }
 
 fn populate_grid() -> Vec<Vec<Data>> {
@@ -74,7 +85,7 @@ fn count_paper_rolls(row: usize, col: usize, grid: &Vec<Vec<Data>>) -> i32 {
     return count;
 }
 
-fn count_accessible_paper_rolls(grid: &Vec<Vec<Data>>) {
+fn count_accessible_paper_rolls(grid: &Vec<Vec<Data>>) -> i32{
     let mut accessible_count = 0;
 
     for row in grid {
@@ -85,7 +96,22 @@ fn count_accessible_paper_rolls(grid: &Vec<Vec<Data>>) {
         }
     }
 
-    println!("Number of accessible paper rolls: {}", accessible_count);
+    //println!("Number of accessible paper rolls: {}", accessible_count);
+    return accessible_count;
+}
+
+fn remove_accessible_paper_rolls(grid: &mut Vec<Vec<Data>>) {
+    let numRow = grid.len();
+    let numCol = grid[0].len();
+
+    for i in 0..numRow {
+        for j in 0..numCol {
+            if grid[i][j].can_access {
+                grid[i][j].is_paper_roll = false;
+                grid[i][j].can_access = false;
+            }
+        }
+    }
 }
 
 fn print_grid(grid: &Vec<Vec<Data>>) {
